@@ -13,7 +13,7 @@ from tenacity import (
     wait_random_exponential,
 )  # for exponential backoff
 
-model_list = ["text-davinci-003","code-davinci-002","gpt-3.5-turbo","gpt-4"]
+model_list = ["text-davinci-003"]
 parser = argparse.ArgumentParser(description="cycle")
 parser.add_argument('--model', type=str, default="text-davinci-003", help='name of LM (default: text-davinci-003)')
 parser.add_argument('--mode', type=str, default="easy", help='mode (default: easy)')
@@ -23,12 +23,12 @@ parser.add_argument('--token', type=int, default=400, help='max token (default: 
 parser.add_argument('--SC', type=int, default=0, help='self-consistency (default: 0)')
 parser.add_argument('--SC_num', type=int, default=5, help='number of cases for self-consistency (default: 5)')
 args = parser.parse_args()
-assert args.prompt in ["CoT", "none", "0-CoT", "LTM", "PROGRAM","k-shot","Instruct","Algorithm", "Recitation","hard-CoT","medium-CoT"]
+assert args.prompt in ["CoT", "none", "PROGRAM","k-shot","Instruct","Algorithm","hard-CoT"]
 
 def translate(edge, n, args):
     Q = ''
-    if args.prompt in ["CoT", "k-shot", "Instruct", "Algorithm", "Recitation","hard-CoT","medium-CoT"]:
-        with open("NLGraph/cycle/prompt/" + args.prompt + "-prompt.txt", "r") as f:
+    if args.prompt in ["CoT", "k-shot", "Instruct", "Algorithm", "hard-CoT"]:
+        with open("prompt/" + args.prompt + "-prompt.txt", "r") as f:
             exemplar = f.read()
         Q = Q + exemplar + "\n\n\n"
     Q = Q + "In an undirected graph, (i,j) means that node i and node j are connected with an undirected edge.\nThe nodes are numbered from 0 to " + str(n-1)+", and the edges are:"
@@ -129,7 +129,7 @@ def main():
     for i in tqdm(range((g_num + batch_num - 1) // batch_num)):
         G_list, Q_list = [], []
         for j in range(i*batch_num, min(g_num, (i+1)*batch_num)):
-            with open("NLgraph/cycle/graph/"+args.mode+"/standard/graph"+str(j)+".txt","r") as f:
+            with open("data/cycle/graph/"+args.mode+"/standard/graph"+str(j)+".txt","r") as f:
                 n, m = [int(x) for x in next(f).split()]
                 edge = []
                 for line in f: # read rest of lines
